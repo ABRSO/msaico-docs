@@ -1,0 +1,20 @@
+site_name: Notes & Documentation
+site_description: Notes, Guides and Documentation
+site_url: https://docs.msaico.com
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - search.suggest
+
+nav:
+  - Home: index.md
+  - Guides:
+      - Getting Started: guides/vLLM-with-NVIDIA-RTX-PRO-6000-Blackwell-Max-Q-Workstation-Edition.md
+
+plugins:
+  - search
