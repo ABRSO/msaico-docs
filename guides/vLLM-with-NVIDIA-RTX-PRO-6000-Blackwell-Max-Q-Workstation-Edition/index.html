@@ -25,7 +25,7 @@
     
     
       
-        <title>Getting Started - Notes & Documentation</title>
+        <title>Run models with vLLM on RTX PRO 6000 - Notes & Documentation</title>
       
     
     
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Run models with vLLM on RTX PRO 6000
             
           </span>
         </div>
@@ -350,7 +350,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Run models with vLLM on RTX PRO 6000
   
 
     
@@ -368,7 +368,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Run models with vLLM on RTX PRO 6000
   
 
     
@@ -565,251 +565,266 @@
 <h1 id="vllm-with-nvidia-rtx-pro-6000-blackwell-max-q-workstation-edition">vLLM with NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition</h1>
 <p>Wednesday, December 24th 2025 7:26 PM</p>
 <p>This document details the installation steps and configurations taken to get vLLM working with NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition cards. Each LLM requires specific versions of vLLM, libraries, GPU driver and CUDA.</p>
-<blockquote>
-<p><strong>GGUF models with vLLM</strong></p>
-<p>vLLM has experimental GGUF support, and cannot support multi-part gguf files.[^1] If it is essential to use a multi-part gguf file, then they can be merged into a single file with the help of gguf-split feature of llama.cpp.[^2]</p>
-</blockquote>
+<div class="admonition info">
+<p class="admonition-title">GGUF models with vLLM</p>
+<p>vLLM has experimental GGUF support, and cannot support multi-part gguf files.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> If it is essential to use a multi-part gguf file, then they can be merged into a single file with the help of gguf-split feature of llama.cpp.<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></p>
+</div>
 <h2 id="openaigpt-oss-120b"><strong>openai/gpt-oss-120b</strong></h2>
-<pre><code class="language-shell"># Create virtual environment
-uv venv .gpt120b --python 3.12 --seed  
-source .gpt120b/bin/activate
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment</span>
+uv<span class="w"> </span>venv<span class="w"> </span>.gpt120b<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">  </span>
+<span class="nb">source</span><span class="w"> </span>.gpt120b/bin/activate
 
-# Install vLLM  
-UV_HTTP_TIMEOUT=1000 uv pip install --pre vllm --extra-index-url https://wheels.vllm.ai/gpt-oss/ --extra-index-url https://download.pytorch.org/whl/nightly/cu128 --index-strategy unsafe-best-match
+<span class="c1"># Install vLLM  </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://wheels.vllm.ai/gpt-oss/<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
 
-# Serve gpt-oss-120b model
-/home/sadmin/.gpt120b/bin/vllm serve openai/gpt-oss-120b --port 11434 --max_model_len 2048 --gpu-memory-utilization 0.8
-</code></pre>
+<span class="c1"># Serve gpt-oss-120b model</span>
+/home/sadmin/.gpt120b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>openai/gpt-oss-120b<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8
+</code></pre></div>
 <ul>
 <li>If you run into <code>openai_harmony.HarmonyError: error downloading or loading vocab file: failed to download or load vocab</code> error, this can be worked around by downloading the tiktoken encoding files in advance and setting the <code>TIKTOKEN_ENCODINGS_BASE</code> environment variable. This is caused by a bug in openai_harmony code.</li>
 </ul>
-<pre><code class="language-shell">mkdir -p tiktoken_encodings
-wget -O tiktoken_encodings/o200k_base.tiktoken &quot;https://openaipublic.blob.core.windows.net/encodings/o200k_base.tiktoken&quot;
-wget -O tiktoken_encodings/cl100k_base.tiktoken &quot;https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken&quot;
-export TIKTOKEN_ENCODINGS_BASE=${PWD}/tiktoken_encodings
-</code></pre>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tiktoken_encodings
+wget<span class="w"> </span>-O<span class="w"> </span>tiktoken_encodings/o200k_base.tiktoken<span class="w"> </span><span class="s2">&quot;https://openaipublic.blob.core.windows.net/encodings/o200k_base.tiktoken&quot;</span>
+wget<span class="w"> </span>-O<span class="w"> </span>tiktoken_encodings/cl100k_base.tiktoken<span class="w"> </span><span class="s2">&quot;https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/tiktoken_encodings
+</code></pre></div>
 <p><strong>Environment variables for running this model</strong>:</p>
-<pre><code class="language-shell">CUDA_HOME=/usr/local/cuda-12.8
-LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
-TIKTOKEN_ENCODINGS_BASE=/home/sadmin/tiktoken_encodings
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span>/home/sadmin/tiktoken_encodings
+</code></pre></div>
 <p><strong>systemctl service file for running gpt-oss-120b</strong>:</p>
-<pre><code class="language-shell">[Unit]
-Description=vLLM serve GPT-OSS 120b
-After=network.target
-Wants=network-online.target
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>GPT-OSS<span class="w"> </span>120b
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
 
-[Service]
-# Run as the non-root user who owns the venv/workspace
-User=sadmin
-Group=sadmin
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
 
-# Make sure essential CUDA envs are visible to the service
-Environment=CUDA_HOME=/usr/local/cuda-12.8
-Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
-Environment=TIKTOKEN_ENCODINGS_BASE=/home/sadmin/tiktoken_encodings
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span>/home/sadmin/tiktoken_encodings
 
-# ExecStart: call the venv vllm binary directly (no wrapper script)
-ExecStart=/home/sadmin/.gpt120b/bin/vllm serve openai/gpt-oss-120b --port 11434 --max_model_len 2048 --gpu-memory-utilization 0.8
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.gpt120b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>openai/gpt-oss-120b<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8
 
-# Restart behavior: resilient and restarts after a crash or system reboot
-Restart=on-failure
-RestartSec=5
-# Run the service after boot (also restart on systemd daemon reload)
-StartLimitIntervalSec=60
-StartLimitBurst=5
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
 
-StandardOutput=journal
-StandardError=journal
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
 
-[Install]
-WantedBy=multi-user.target
-</code></pre>
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
 <h2 id="redhataillama-4-maverick-17b-128e-instruct-nvfp4"><strong>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4</strong></h2>
-<pre><code class="language-shell"># Create virtual environment  
-uv venv .llama4-maverick --python 3.12 --seed    
-source .llama4-maverick/bin/activate
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment  </span>
+uv<span class="w"> </span>venv<span class="w"> </span>.llama4-maverick<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.llama4-maverick/bin/activate
 
-# Install vLLM    
-UV_HTTP_TIMEOUT=1000 uv pip install vllm --extra-index-url https://download.pytorch.org/whl/nightly/cu128 --index-strategy unsafe-best-match
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
 
-# Run model
-/home/sadmin/.llama4-maverick/bin/vllm serve RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4 --port 11434 --max_model_len 2048 --gpu-memory-utilization 0.7 --cpu-offload-gb 200
+<span class="c1"># Run model</span>
+/home/sadmin/.llama4-maverick/bin/vllm<span class="w"> </span>serve<span class="w"> </span>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span>--cpu-offload-gb<span class="w"> </span><span class="m">200</span>
 
-# unsloth GGUF model
-/home/sadmin/llama.cpp/build/bin/llama-server -m /home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf -c 2048 --port 11434 --host 0.0.0.0 --parallel 50
-</code></pre>
-<blockquote>
+<span class="c1"># unsloth GGUF model</span>
+/home/sadmin/llama.cpp/build/bin/llama-server<span class="w"> </span>-m<span class="w"> </span>/home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf<span class="w"> </span>-c<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--parallel<span class="w"> </span><span class="m">50</span>
+</code></pre></div>
+<details class="note">
+<summary>Note</summary>
 <p>While this model is offloaded to CPU with vLLM, the performance is not up to mark and the inference generation is not coherent, check the below screenshots for reference. With llama.cpp this is not a problem.</p>
-</blockquote>
+</details>
 <p><strong>systemctl service file for running RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4 using vLLM</strong>:</p>
-<pre><code class="language-shell">[Unit]
-Description=vLLM serve Llama-4-Maverick
-After=network.target
-Wants=network-online.target
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>Llama-4-Maverick
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
 
-[Service]
-# Run as the non-root user who owns the venv/workspace
-User=sadmin
-Group=sadmin
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
 
-# Make sure essential CUDA envs are visible to the service
-Environment=CUDA_HOME=/usr/local/cuda-12.8
-Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
 
-# ExecStart: call the venv vllm binary directly (no wrapper script)
-ExecStart=/home/sadmin/.llama4-maverick/bin/vllm serve RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4 --port 11434 --max_model_len 2048 --gpu-memory-utilization 0.7 --cpu-offload-gb 200
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.llama4-maverick/bin/vllm<span class="w"> </span>serve<span class="w"> </span>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span>--cpu-offload-gb<span class="w"> </span><span class="m">200</span>
 
-# Restart behavior: resilient and restarts after a crash or system reboot
-Restart=on-failure
-RestartSec=5
-# Run the service after boot (also restart on systemd daemon reload)
-StartLimitIntervalSec=60
-StartLimitBurst=5
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
 
-StandardOutput=journal
-StandardError=journal
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
 
-[Install]
-WantedBy=multi-user.target
-</code></pre>
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
 <p><strong>systemctl service file for running unsloth/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL using llama.cpp</strong>:</p>
-<pre><code class="language-shell">[Unit]
-Description=vLLM serve Llama-4-Maverick
-After=network.target
-Wants=network-online.target
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>Llama-4-Maverick
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
 
-[Service]
-# Run as the non-root user who owns the venv/workspace
-User=sadmin
-Group=sadmin
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
 
-# Make sure essential CUDA envs are visible to the service
-Environment=CUDA_HOME=/usr/local/cuda-12.8
-Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
 
-# ExecStart: call the venv vllm binary directly (no wrapper script)
-ExecStart=/home/sadmin/llama.cpp/build/bin/llama-server -m /home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf -c 2048 --port 11434 --host 0.0.0.0 --parallel 50
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/llama.cpp/build/bin/llama-server<span class="w"> </span>-m<span class="w"> </span>/home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf<span class="w"> </span>-c<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--parallel<span class="w"> </span><span class="m">50</span>
 
-# Restart behavior: resilient and restarts after a crash or system reboot
-Restart=on-failure
-RestartSec=5
-# Run the service after boot (also restart on systemd daemon reload)
-StartLimitIntervalSec=60
-StartLimitBurst=5
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
 
-StandardOutput=journal
-StandardError=journal
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
 
-[Install]
-WantedBy=multi-user.target
-</code></pre>
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
 <h2 id="meta-llamallama-33-70b-instruct"><strong>meta-llama/Llama-3.3-70B-Instruct</strong></h2>
-<pre><code class="language-shell"># Create virtual environment  
-uv venv .llama3.3-70b --python 3.12 --seed    
-source .llama3.3-70b/bin/activate
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment  </span>
+uv<span class="w"> </span>venv<span class="w"> </span>.llama3.3-70b<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.llama3.3-70b/bin/activate
 
-# Install vLLM    
-UV_HTTP_TIMEOUT=1000 uv pip install vllm --extra-index-url https://download.pytorch.org/whl/nightly/cu128 --index-strategy unsafe-best-match
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
 
-# Run model
-/home/sadmin/.llama3.3-70b/bin/vllm serve meta-llama/Llama-3.3-70B-Instruct --port 11434 --max_model_len 8192 --gpu-memory-utilization 0.8 --tensor-parallel-size 4
-</code></pre>
+<span class="c1"># Run model</span>
+/home/sadmin/.llama3.3-70b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.3-70B-Instruct<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span>--tensor-parallel-size<span class="w"> </span><span class="m">4</span>
+</code></pre></div>
 <p><strong>systemd service file for running meta-llama/Llama-3.3-70B-Instruct using vLLM</strong>:</p>
-<pre><code class="language-shell">[Unit]
-Description=vLLM serve llama-3.3-70B
-After=network.target
-Wants=network-online.target
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>llama-3.3-70B
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
 
-[Service]
-# Run as the non-root user who owns the venv/workspace
-User=sadmin
-Group=sadmin
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
 
-# Make sure essential CUDA envs are visible to the service
-Environment=CUDA_HOME=/usr/local/cuda-12.8
-Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
-# vLLM / torch runtime hints
-#Environment=VLLM_ENGINE_ITERATION_TIMEOUT_S=120
-#Environment=VLLM_TORCH_COMPILE=0
-#Environment=NCCL_HEARTBEAT_TIMEOUT=0
-#Environment=NCCL_ENABLE_MONITORING=0
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="c1"># vLLM / torch runtime hints</span>
+<span class="c1">#Environment=VLLM_ENGINE_ITERATION_TIMEOUT_S=120</span>
+<span class="c1">#Environment=VLLM_TORCH_COMPILE=0</span>
+<span class="c1">#Environment=NCCL_HEARTBEAT_TIMEOUT=0</span>
+<span class="c1">#Environment=NCCL_ENABLE_MONITORING=0</span>
 
-# ExecStart: call the venv vllm binary directly (no wrapper script)
-ExecStart=/home/sadmin/.llama3.3-70b/bin/vllm serve meta-llama/Llama-3.3-70B-Instruct --port 11434 --max_model_len 8192 --gpu-memory-utilization 0.8 --tensor-parallel-size 2
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.llama3.3-70b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.3-70B-Instruct<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span>--tensor-parallel-size<span class="w"> </span><span class="m">2</span>
 
-# Restart behavior: resilient and restarts after a crash or system reboot
-Restart=on-failure
-RestartSec=5
-# Run the service after boot (also restart on systemd daemon reload)
-StartLimitIntervalSec=60
-StartLimitBurst=5
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
 
-StandardOutput=journal
-StandardError=journal
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
 
-[Install]
-WantedBy=multi-user.target
-</code></pre>
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
 <h2 id="intfloate5-large-v2">intfloat/e5-large-v2</h2>
-<pre><code class="language-shell"># Create a virtual environment
-uv venv .e5-large-v2 --python 3.12 --seed    
-source .e5-large-v2/bin/activate
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a virtual environment</span>
+uv<span class="w"> </span>venv<span class="w"> </span>.e5-large-v2<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.e5-large-v2/bin/activate
 
-# Install vLLM    
-UV_HTTP_TIMEOUT=1000 uv pip install vllm --extra-index-url https://download.pytorch.org/whl/nightly/cu128 --index-strategy unsafe-best-match
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
 
-# Run model
-CUDA_VISIBLE_DEVICES=1 /home/sadmin/.e5-large-v2/bin/vllm serve intfloat/e5-large-v2 --port 8080 --gpu-memory-utilization 0.15
-</code></pre>
-<p>Refer to Online Serving and Pooling API in vLLM docs for embedding model serving[^3]</p>
+<span class="c1"># Run model</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>/home/sadmin/.e5-large-v2/bin/vllm<span class="w"> </span>serve<span class="w"> </span>intfloat/e5-large-v2<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.15
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Refer to Online Serving and Pooling API in vLLM docs for embedding model serving<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup></p>
+</div>
 <p><strong>systemd service file for running intfloat/e5-large-v2 using vLLM</strong>:</p>
-<pre><code class="language-shell">[Unit]
-Description=vLLM serve e5-large-v2
-After=network.target
-Wants=network-online.target
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>e5-large-v2
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
 
-[Service]
-# Run as the non-root user who owns the venv/workspace
-User=sadmin
-Group=sadmin
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
 
-# Make sure essential CUDA envs are visible to the service
-Environment=CUDA_HOME=/usr/local/cuda-12.8
-Environment=LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:%(LD_LIBRARY_PATH)s
-Environment=CUDA_VISIBLE_DEVICES=1
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>
 
-# ExecStart: call the venv vllm binary directly (no wrapper script)
-ExecStart=/home/sadmin/.e5-large-v2/bin/vllm serve intfloat/e5-large-v2 --port 8080 --gpu-memory-utilization 0.15
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.e5-large-v2/bin/vllm<span class="w"> </span>serve<span class="w"> </span>intfloat/e5-large-v2<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.15
 
-# Restart behavior: resilient and restarts after a crash or system reboot
-Restart=on-failure
-RestartSec=5
-# Run the service after boot (also restart on systemd daemon reload)
-StartLimitIntervalSec=60
-StartLimitBurst=5
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
 
-StandardOutput=journal
-StandardError=journal
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
 
-[Install]
-WantedBy=multi-user.target
-</code></pre>
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
 <p><strong>cURL request</strong>:</p>
-<pre><code class="language-shell">curl -X 'POST' \
-  'http://10.141.1.242:8080/pooling' \
-  -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  &quot;model&quot;: &quot;intfloat/e5-large-v2&quot;,
-  &quot;input&quot;: [&quot;Hello, there!&quot;],
-  &quot;task&quot;: &quot;embed&quot;
-}'
-</code></pre>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://10.141.1.242:8080/pooling&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;model&quot;: &quot;intfloat/e5-large-v2&quot;,</span>
+<span class="s1">  &quot;input&quot;: [&quot;Hello, there!&quot;],</span>
+<span class="s1">  &quot;task&quot;: &quot;embed&quot;</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
 <h2 id="references">References</h2>
-<p>[^1]: <a href="https://docs.vllm.ai/en/latest/features/quantization/gguf/">GGUF - vLLM</a></p>
-<p>[^2]: <a href="https://github.com/ggml-org/llama.cpp/pull/6135">gguf-split: split and merge gguf per batch of tensors by phymbert · Pull Request #6135 · ggml-org/llama.cpp</a></p>
-<p>[^3]: <a href="https://github.com/vllm-project/vllm/blob/main/docs/models/pooling_models.md#online-serving">Online Pooling serving</a></p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p><a href="https://docs.vllm.ai/en/latest/features/quantization/gguf/">GGUF - vLLM</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://github.com/ggml-org/llama.cpp/pull/6135">gguf-split: split and merge gguf per batch of tensors by phymbert · Pull Request #6135 · ggml-org/llama.cpp</a>&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://github.com/vllm-project/vllm/blob/main/docs/models/pooling_models.md#online-serving">Online Pooling serving</a>&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
 
 
 
