@@ -14,7 +14,15 @@ theme:
 nav:
   - Home: index.md
   - Guides:
-      - Getting Started: guides/vLLM-with-NVIDIA-RTX-PRO-6000-Blackwell-Max-Q-Workstation-Edition.md
+      - Run models with vLLM on RTX PRO 6000: guides/vLLM-with-NVIDIA-RTX-PRO-6000-Blackwell-Max-Q-Workstation-Edition.md
 
 plugins:
   - search
+
+markdown_extensions:
+  - footnotes
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite

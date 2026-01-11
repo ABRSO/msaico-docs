@@ -4,9 +4,9 @@ Wednesday, December 24th 2025 7:26 PM
 
 This document details the installation steps and configurations taken to get vLLM working with NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition cards. Each LLM requires specific versions of vLLM, libraries, GPU driver and CUDA.
 
-> **GGUF models with vLLM**
+!!! info "GGUF models with vLLM"
 
-> vLLM has experimental GGUF support, and cannot support multi-part gguf files.[^1] If it is essential to use a multi-part gguf file, then they can be merged into a single file with the help of gguf-split feature of llama.cpp.[^2]
+    vLLM has experimental GGUF support, and cannot support multi-part gguf files.[^1] If it is essential to use a multi-part gguf file, then they can be merged into a single file with the help of gguf-split feature of llama.cpp.[^2]
 
 ## **openai/gpt-oss-120b**
 
@@ -91,7 +91,9 @@ UV_HTTP_TIMEOUT=1000 uv pip install vllm --extra-index-url https://download.pyto
 /home/sadmin/llama.cpp/build/bin/llama-server -m /home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf -c 2048 --port 11434 --host 0.0.0.0 --parallel 50
 ```
 
-> While this model is offloaded to CPU with vLLM, the performance is not up to mark and the inference generation is not coherent, check the below screenshots for reference. With llama.cpp this is not a problem.
+??? note
+
+    While this model is offloaded to CPU with vLLM, the performance is not up to mark and the inference generation is not coherent, check the below screenshots for reference. With llama.cpp this is not a problem.
 
 **systemctl service file for running RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4 using vLLM**:
 
@@ -228,7 +230,8 @@ UV_HTTP_TIMEOUT=1000 uv pip install vllm --extra-index-url https://download.pyto
 CUDA_VISIBLE_DEVICES=1 /home/sadmin/.e5-large-v2/bin/vllm serve intfloat/e5-large-v2 --port 8080 --gpu-memory-utilization 0.15
 ```
 
-Refer to Online Serving and Pooling API in vLLM docs for embedding model serving[^3]
+!!! Note
+    Refer to Online Serving and Pooling API in vLLM docs for embedding model serving[^3]
 
 **systemd service file for running intfloat/e5-large-v2 using vLLM**:
 

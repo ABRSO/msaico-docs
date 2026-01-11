@@ -1,0 +1,884 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Notes, Guides and Documentation">
+      
+      
+      
+        <link rel="canonical" href="https://docs.msaico.com/guides/vLLM-with-NVIDIA-RTX-PRO-6000-Blackwell-Max-Q-Workstation-Edition/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Run models with vLLM on RTX PRO 6000 - Notes & Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vllm-with-nvidia-rtx-pro-6000-blackwell-max-q-workstation-edition" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Notes &amp; Documentation" class="md-header__button md-logo" aria-label="Notes & Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Notes & Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Run models with vLLM on RTX PRO 6000
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Notes &amp; Documentation" class="md-nav__button md-logo" aria-label="Notes & Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Notes & Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run models with vLLM on RTX PRO 6000
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run models with vLLM on RTX PRO 6000
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#openaigpt-oss-120b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openai/gpt-oss-120b
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redhataillama-4-maverick-17b-128e-instruct-nvfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-llamallama-33-70b-instruct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        meta-llama/Llama-3.3-70B-Instruct
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intfloate5-large-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        intfloat/e5-large-v2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#openaigpt-oss-120b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        openai/gpt-oss-120b
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redhataillama-4-maverick-17b-128e-instruct-nvfp4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-llamallama-33-70b-instruct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        meta-llama/Llama-3.3-70B-Instruct
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intfloate5-large-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        intfloat/e5-large-v2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="vllm-with-nvidia-rtx-pro-6000-blackwell-max-q-workstation-edition">vLLM with NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition</h1>
+<p>Wednesday, December 24th 2025 7:26 PM</p>
+<p>This document details the installation steps and configurations taken to get vLLM working with NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition cards. Each LLM requires specific versions of vLLM, libraries, GPU driver and CUDA.</p>
+<div class="admonition info">
+<p class="admonition-title">GGUF models with vLLM</p>
+<p>vLLM has experimental GGUF support, and cannot support multi-part gguf files.<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> If it is essential to use a multi-part gguf file, then they can be merged into a single file with the help of gguf-split feature of llama.cpp.<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></p>
+</div>
+<h2 id="openaigpt-oss-120b"><strong>openai/gpt-oss-120b</strong></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment</span>
+uv<span class="w"> </span>venv<span class="w"> </span>.gpt120b<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">  </span>
+<span class="nb">source</span><span class="w"> </span>.gpt120b/bin/activate
+
+<span class="c1"># Install vLLM  </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://wheels.vllm.ai/gpt-oss/<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
+
+<span class="c1"># Serve gpt-oss-120b model</span>
+/home/sadmin/.gpt120b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>openai/gpt-oss-120b<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8
+</code></pre></div>
+<ul>
+<li>If you run into <code>openai_harmony.HarmonyError: error downloading or loading vocab file: failed to download or load vocab</code> error, this can be worked around by downloading the tiktoken encoding files in advance and setting the <code>TIKTOKEN_ENCODINGS_BASE</code> environment variable. This is caused by a bug in openai_harmony code.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tiktoken_encodings
+wget<span class="w"> </span>-O<span class="w"> </span>tiktoken_encodings/o200k_base.tiktoken<span class="w"> </span><span class="s2">&quot;https://openaipublic.blob.core.windows.net/encodings/o200k_base.tiktoken&quot;</span>
+wget<span class="w"> </span>-O<span class="w"> </span>tiktoken_encodings/cl100k_base.tiktoken<span class="w"> </span><span class="s2">&quot;https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/tiktoken_encodings
+</code></pre></div>
+<p><strong>Environment variables for running this model</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span>/home/sadmin/tiktoken_encodings
+</code></pre></div>
+<p><strong>systemctl service file for running gpt-oss-120b</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>GPT-OSS<span class="w"> </span>120b
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
+
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">TIKTOKEN_ENCODINGS_BASE</span><span class="o">=</span>/home/sadmin/tiktoken_encodings
+
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.gpt120b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>openai/gpt-oss-120b<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8
+
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
+
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
+<h2 id="redhataillama-4-maverick-17b-128e-instruct-nvfp4"><strong>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4</strong></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment  </span>
+uv<span class="w"> </span>venv<span class="w"> </span>.llama4-maverick<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.llama4-maverick/bin/activate
+
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
+
+<span class="c1"># Run model</span>
+/home/sadmin/.llama4-maverick/bin/vllm<span class="w"> </span>serve<span class="w"> </span>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span>--cpu-offload-gb<span class="w"> </span><span class="m">200</span>
+
+<span class="c1"># unsloth GGUF model</span>
+/home/sadmin/llama.cpp/build/bin/llama-server<span class="w"> </span>-m<span class="w"> </span>/home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf<span class="w"> </span>-c<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--parallel<span class="w"> </span><span class="m">50</span>
+</code></pre></div>
+<details class="note">
+<summary>Note</summary>
+<p>While this model is offloaded to CPU with vLLM, the performance is not up to mark and the inference generation is not coherent, check the below screenshots for reference. With llama.cpp this is not a problem.</p>
+</details>
+<p><strong>systemctl service file for running RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4 using vLLM</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>Llama-4-Maverick
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
+
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.llama4-maverick/bin/vllm<span class="w"> </span>serve<span class="w"> </span>RedHatAI/Llama-4-Maverick-17B-128E-Instruct-NVFP4<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.7<span class="w"> </span>--cpu-offload-gb<span class="w"> </span><span class="m">200</span>
+
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
+
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
+<p><strong>systemctl service file for running unsloth/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL using llama.cpp</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>Llama-4-Maverick
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
+
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/llama.cpp/build/bin/llama-server<span class="w"> </span>-m<span class="w"> </span>/home/sadmin/.cache/huggingface/hub/llama-4-Maverick-17B-128E-Instruct-Q4/Llama-4-Maverick-17B-128E-Instruct-UD-Q4_K_XL-00001-of-00005.gguf<span class="w"> </span>-c<span class="w"> </span><span class="m">2048</span><span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--parallel<span class="w"> </span><span class="m">50</span>
+
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
+
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
+<h2 id="meta-llamallama-33-70b-instruct"><strong>meta-llama/Llama-3.3-70B-Instruct</strong></h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create virtual environment  </span>
+uv<span class="w"> </span>venv<span class="w"> </span>.llama3.3-70b<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.llama3.3-70b/bin/activate
+
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
+
+<span class="c1"># Run model</span>
+/home/sadmin/.llama3.3-70b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.3-70B-Instruct<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span>--tensor-parallel-size<span class="w"> </span><span class="m">4</span>
+</code></pre></div>
+<p><strong>systemd service file for running meta-llama/Llama-3.3-70B-Instruct using vLLM</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>llama-3.3-70B
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
+
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="c1"># vLLM / torch runtime hints</span>
+<span class="c1">#Environment=VLLM_ENGINE_ITERATION_TIMEOUT_S=120</span>
+<span class="c1">#Environment=VLLM_TORCH_COMPILE=0</span>
+<span class="c1">#Environment=NCCL_HEARTBEAT_TIMEOUT=0</span>
+<span class="c1">#Environment=NCCL_ENABLE_MONITORING=0</span>
+
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.llama3.3-70b/bin/vllm<span class="w"> </span>serve<span class="w"> </span>meta-llama/Llama-3.3-70B-Instruct<span class="w"> </span>--port<span class="w"> </span><span class="m">11434</span><span class="w"> </span>--max_model_len<span class="w"> </span><span class="m">8192</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span>--tensor-parallel-size<span class="w"> </span><span class="m">2</span>
+
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
+
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
+<h2 id="intfloate5-large-v2">intfloat/e5-large-v2</h2>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a virtual environment</span>
+uv<span class="w"> </span>venv<span class="w"> </span>.e5-large-v2<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.12<span class="w"> </span>--seed<span class="w">    </span>
+<span class="nb">source</span><span class="w"> </span>.e5-large-v2/bin/activate
+
+<span class="c1"># Install vLLM    </span>
+<span class="nv">UV_HTTP_TIMEOUT</span><span class="o">=</span><span class="m">1000</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>vllm<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/nightly/cu128<span class="w"> </span>--index-strategy<span class="w"> </span>unsafe-best-match
+
+<span class="c1"># Run model</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>/home/sadmin/.e5-large-v2/bin/vllm<span class="w"> </span>serve<span class="w"> </span>intfloat/e5-large-v2<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.15
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Refer to Online Serving and Pooling API in vLLM docs for embedding model serving<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup></p>
+</div>
+<p><strong>systemd service file for running intfloat/e5-large-v2 using vLLM</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>Unit<span class="o">]</span>
+<span class="nv">Description</span><span class="o">=</span>vLLM<span class="w"> </span>serve<span class="w"> </span>e5-large-v2
+<span class="nv">After</span><span class="o">=</span>network.target
+<span class="nv">Wants</span><span class="o">=</span>network-online.target
+
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="c1"># Run as the non-root user who owns the venv/workspace</span>
+<span class="nv">User</span><span class="o">=</span>sadmin
+<span class="nv">Group</span><span class="o">=</span>sadmin
+
+<span class="c1"># Make sure essential CUDA envs are visible to the service</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_HOME</span><span class="o">=</span>/usr/local/cuda-12.8
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/cuda-12.8/lib64:%<span class="o">(</span>LD_LIBRARY_PATH<span class="o">)</span>s
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># ExecStart: call the venv vllm binary directly (no wrapper script)</span>
+<span class="nv">ExecStart</span><span class="o">=</span>/home/sadmin/.e5-large-v2/bin/vllm<span class="w"> </span>serve<span class="w"> </span>intfloat/e5-large-v2<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span><span class="w"> </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.15
+
+<span class="c1"># Restart behavior: resilient and restarts after a crash or system reboot</span>
+<span class="nv">Restart</span><span class="o">=</span>on-failure
+<span class="nv">RestartSec</span><span class="o">=</span><span class="m">5</span>
+<span class="c1"># Run the service after boot (also restart on systemd daemon reload)</span>
+<span class="nv">StartLimitIntervalSec</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">StartLimitBurst</span><span class="o">=</span><span class="m">5</span>
+
+<span class="nv">StandardOutput</span><span class="o">=</span>journal
+<span class="nv">StandardError</span><span class="o">=</span>journal
+
+<span class="o">[</span>Install<span class="o">]</span>
+<span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</code></pre></div>
+<p><strong>cURL request</strong>:</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;http://10.141.1.242:8080/pooling&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;model&quot;: &quot;intfloat/e5-large-v2&quot;,</span>
+<span class="s1">  &quot;input&quot;: [&quot;Hello, there!&quot;],</span>
+<span class="s1">  &quot;task&quot;: &quot;embed&quot;</span>
+<span class="s1">}&#39;</span>
+</code></pre></div>
+<h2 id="references">References</h2>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p><a href="https://docs.vllm.ai/en/latest/features/quantization/gguf/">GGUF - vLLM</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://github.com/ggml-org/llama.cpp/pull/6135">gguf-split: split and merge gguf per batch of tensors by phymbert · Pull Request #6135 · ggml-org/llama.cpp</a>&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://github.com/vllm-project/vllm/blob/main/docs/models/pooling_models.md#online-serving">Online Pooling serving</a>&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
